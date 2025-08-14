@@ -14,9 +14,9 @@ print("-------------------------------------------------------------------")
 # --- 1️⃣ Data Collection & Loading ---
 print("\n[Phase 1: Data Acquisition & Initial Reconnaissance]")
 
-# Action: Download 'owid-covid-data.csv' from Our World in Data and save in working folder.
+# Action: Data will now be retrieved directly from the online URL.
 # URL: https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv
-covid_data_url = 'owid-covid-data.csv' # Assuming the file is downloaded locally
+covid_data_url = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv' # Changed to online URL
 
 try:
     print(f"📡 Attempting to load global intel from '{covid_data_url}'...")
@@ -35,12 +35,20 @@ try:
     print("\n🔍 Missing Intel Scan (df.isnull().sum()):")
     print(df.isnull().sum()[df.isnull().sum() > 0]) # Only show columns with missing values
 
-except FileNotFoundError:
-    print(f"\n🚨 ERROR: Intel file '{covid_data_url}' not found. Ensure it's in the working folder. 🚨")
+except FileNotFoundError: # This error is less likely with URL, but kept for general robustness
+    print(f"\n🚨 ERROR: Intel source '{covid_data_url}' not found. Verify URL or network connection. 🚨")
     print("Protocol halted. Cannot proceed without raw data feed.")
     exit() # Exit the program if the file isn't found
+except pd.errors.EmptyDataError:
+    print(f"\n🚨 ERROR: No data found at '{covid_data_url}'. The online source might be empty or malformed. 🚨")
+    print("Protocol halted.")
+    exit()
+except pd.errors.ParserError:
+    print(f"\n🚨 ERROR: Failed to parse data from '{covid_data_url}'. Data format might be incorrect. 🚨")
+    print("Protocol halted.")
+    exit()
 except Exception as e:
-    print(f"\n🚨 CRITICAL ERROR during data acquisition: {e}. Protocol Halted. 🚨")
+    print(f"\n🚨 CRITICAL ERROR during data acquisition: {e}. Protocol Halted. Check network connection or URL validity. �")
     exit()
 
 print("-------------------------------------------------------------------")
@@ -119,9 +127,7 @@ plt.rcParams.update({
     "axes.edgecolor": "#805ad5",
     "axes.spines.top": False,
     "axes.spines.right": False,
-    # --- FIX FOR FONT ERROR ---
-    # Changed 'Inter' to a list of generic sans-serif fonts
-    "font.family": ["DejaVu Sans", "sans-serif"],
+    "font.family": ["DejaVu Sans", "sans-serif"], # Using generic font for compatibility
     "legend.edgecolor": "#5a6a7c"
 })
 
@@ -188,7 +194,7 @@ print("Generating Visualizations: New Cases Distribution in South Africa...")
 sa_data = df_filtered[df_filtered['location'] == 'South Africa'].copy()
 plt.figure(figsize=(10, 6))
 sns.histplot(sa_data['new_cases'], bins=30, kde=True, color='#6b46c1')
-plt.title('Distribution of Daily New Cases in South Africa (SA Infection Frequency) 🇿�', fontsize=16, color='#c3a6ff')
+plt.title('Distribution of Daily New Cases in South Africa (SA Infection Frequency) 🇿🇦', fontsize=16, color='#c3a6ff')
 plt.xlabel('Daily New Cases', fontsize=12)
 plt.ylabel('Frequency', fontsize=12)
 plt.grid(axis='y', linestyle='--', alpha=0.7)
@@ -290,4 +296,7 @@ print("4. **Death Rate Refinement (💀):** The calculated death rate (Total Dea
 print("5. **Inter-Component Correlations (🧬):** The relationship between different metrics, such as higher total cases often correlating with higher death counts, confirms expected tactical dependencies. The choropleth map provides a stark visual summary of global contagion density, pinpointing high-impact zones for future surveillance.")
 
 print("\n--- COVID-19 Data Intelligence Protocol Complete. Mission Accomplished. 🌙 ---")
-print("Thank you for using the COVID-19 Global Data Tracker (Shadow Garden Edition). Stay safe and vigilant. 🌐")
+print("Thank you for using the COVID-19 Global Data Tracker (Shadow Garden Edition). Stay vigilant and informed.")
+print("For further analysis or data requests, please contact the Shadow Garden Data Operations Center.")
+print("-------------------------------------------------------------------")
+# End of atomic_covid_tracker.py
